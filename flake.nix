@@ -22,6 +22,8 @@
                         evaluate
                         gradio
                         accelerate
+
+                        pip
                     ]))
                 ];
 

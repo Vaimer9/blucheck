@@ -1,3 +1,4 @@
+from pathlib import Path
 from transformers import (
     AutoTokenizer, AutoModelForSequenceClassification,
     TrainingArguments, Trainer
@@ -6,15 +7,25 @@ from datasets import Dataset
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from pathlib import Path
 
 # 1. Load and split data
-df = pd.read_csv("data/statements.csv")
+DATA = Path(__file__).resolve().parent / "data" / "statements.csv"
+df = pd.read_csv(DATA)
+
+# --- clean ---
+df = df.dropna(subset=["statement", "status"])
+df["statement"] = df["statement"].astype(str).str.strip()
+df = df[df["statement"].str.len() > 0]
+df = df.drop(columns=[c for c in df.columns if c.startswith("Unnamed")], errors="ignore")
+
 le = LabelEncoder()
-df["label"] = le.fit_transform(df["status"])  # e.g. "Depression" -> 2
+df["label"] = le.fit_transform(df["status"])
+
 train_df, val_df = train_test_split(df, test_size=0.2, stratify=df["label"])
 
-train_ds = Dataset.from_pandas(train_df)
-val_ds = Dataset.from_pandas(val_df)
+train_ds = Dataset.from_pandas(train_df, preserve_index=False)
+val_ds   = Dataset.from_pandas(val_df,   preserve_index=False)
 
 # 2. Tokenize
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
