@@ -1,0 +1,135 @@
+{
+  "Depression": {
+    "note": "Long first-person answers, like the training posts. Some probability tends to leak into Suicidal.",
+    "items": [
+      {
+        "question": "How have you been feeling emotionally over the past two weeks?",
+        "answer": "I have been feeling empty and numb for months now. I wake up and feel nothing, I just go through the motions and I do not know why I even bother. Nothing feels worth it anymore."
+      },
+      {
+        "question": "What do you do in your free time, and do you still enjoy it?",
+        "answer": "I used to love playing guitar and going out with friends but I do not enjoy anything anymore. I just lie in bed all day scrolling my phone and feeling like a waste of space."
+      },
+      {
+        "question": "How have your sleep and energy levels been?",
+        "answer": "I am exhausted all the time but I cannot sleep properly. Some days I sleep twelve hours and still feel tired, other days I lie awake until 5am. I have no energy to do anything."
+      },
+      {
+        "question": "How do you feel about yourself lately?",
+        "answer": "I hate myself. I feel like a failure and a burden to everyone around me. I do not think I have ever done anything right and I feel worthless."
+      },
+      {
+        "question": "How are things with your friends and family?",
+        "answer": "I have been pushing everyone away. I feel so lonely even when people are around me but I do not want to talk to anybody. I cannot be bothered to reply to messages anymore."
+      },
+      {
+        "question": "How do you feel about the future?",
+        "answer": "I do not see things getting better. I have been depressed for years and I feel like I will always be stuck like this. I cannot picture a future where I am actually happy."
+      }
+    ]
+  },
+  "Anxiety": {
+    "note": "The Anxiety class seems heavy on health anxiety (symptoms, doctors, panic attacks), so these answers lean on that.",
+    "items": [
+      {
+        "question": "How often do you feel nervous or on edge, and what is it like?",
+        "answer": "Pretty much every day. My heart starts racing out of nowhere and I get this tight feeling in my chest. I can’t stop thinking something is wrong and it makes me panic."
+      },
+      {
+        "question": "What do you worry about the most?",
+        "answer": "Everything, honestly. I worry about my health, I keep googling symptoms and convincing myself I have something serious. Every little pain turns into a cancer scare in my head."
+      },
+      {
+        "question": "How does anxiety affect your sleep?",
+        "answer": "I lie awake at night with my heart pounding and my mind racing, scared that something is wrong with me. I get so anxious thinking about every symptom that I end up panicking until morning."
+      },
+      {
+        "question": "What physical sensations do you notice when you are anxious?",
+        "answer": "I get dizzy and shaky, my stomach is in knots and sometimes I feel like I can’t breathe. Last week I went to the ER because I thought it was a heart attack but the doctor said it was a panic attack."
+      },
+      {
+        "question": "Do you avoid any situations because of your anxiety?",
+        "answer": "Yes, I avoid anything that sets off my anxiety. I’m scared of having a panic attack in public so I stay home, and even a phone call makes my heart race and my hands shake."
+      },
+      {
+        "question": "Are you able to relax?",
+        "answer": "No, I can’t relax at all. I’m constantly restless and on edge, always waiting for something bad to happen. Even when everything is fine I feel this sense of dread."
+      }
+    ]
+  },
+  "Stress": {
+    "note": "The Stress class seems to lean on the literal word 'stress' and on work, school and deadlines, so these answers use those.",
+    "items": [
+      {
+        "question": "What is your main source of stress right now?",
+        "answer": "Work, mostly. I have three deadlines this week and my boss keeps adding more tasks. I feel so stressed and overwhelmed, I don’t know how I’m going to get it all done."
+      },
+      {
+        "question": "How are you coping with the stress?",
+        "answer": "Honestly not well. I’ve been trying to manage my stress with exercise and meditation but I’m still stressed out all the time. Any tips on how to deal with it?"
+      },
+      {
+        "question": "Has stress affected you physically?",
+        "answer": "I get constant headaches and tension in my neck and shoulders. I’m grinding my teeth at night and my stomach is upset every morning before work."
+      },
+      {
+        "question": "How do you feel about your workload and your time?",
+        "answer": "There aren’t enough hours in the day. Between school, my part-time job and family stuff I never get a break and I feel like I’m going to burn out."
+      },
+      {
+        "question": "How have stress levels affected your mood with other people?",
+        "answer": "The stress is making me short tempered with everyone. I’m so stressed from work and deadlines that the littlest thing sets me off, and then I feel guilty about it."
+      },
+      {
+        "question": "Are you able to switch off and take time for yourself?",
+        "answer": "I can’t switch off. Even on weekends I’m thinking about my to do list and my emails. I feel like I never get a break from the pressure."
+      }
+    ]
+  },
+  "Normal (short)": {
+    "note": "Short, casual answers. A control that the model should find easy.",
+    "items": [
+      {
+        "question": "How have you been feeling lately?",
+        "answer": "pretty good! just had a great weekend with my friends"
+      },
+      {
+        "question": "What do you do in your free time?",
+        "answer": "going to see a movie with a friend tonight. what about you?"
+      },
+      {
+        "question": "How have you been sleeping?",
+        "answer": "slept like a baby last night lol"
+      },
+      {
+        "question": "How do you feel about yourself lately?",
+        "answer": "feeling good, started going to the gym and loving it"
+      },
+      {
+        "question": "How are things with your friends and family?",
+        "answer": "all good! having dinner with my family this weekend"
+      },
+      {
+        "question": "How do you feel about the future?",
+        "answer": "excited, cant wait for the summer holidays"
+      }
+    ]
+  },
+  "Normal (long)": {
+    "note": "Longer, more careful Normal answers, to test whether the model is mostly keying on answer length.",
+    "items": [
+      {
+        "question": "How have you been feeling lately?",
+        "answer": "Honestly pretty good. Work has been busy but manageable, and I have been making time to see friends on weekends, which helps me recharge."
+      },
+      {
+        "question": "How have you been sleeping?",
+        "answer": "Mostly well. I go to bed around eleven and wake up rested, with the odd bad night when I have had too much coffee."
+      },
+      {
+        "question": "How do you feel about the future?",
+        "answer": "Hopeful. There is a lot I want to do this year, like learning to cook properly and planning a trip with my sister."
+      }
+    ]
+  }
+}
