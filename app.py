@@ -140,11 +140,9 @@ A plain list of question strings also works."""
 
 with gr.Blocks(title="Questionnaire Designer") as demo:
     gr.Markdown(
-        "# Questionnaire Designer (prototype)\n"
+        "# Blucheck (prototype)\n"
         "Build a questionnaire, let someone fill it in, then see how the model "
         "scores the answers.  \n"
-        "*Prototype only. The model is trained on a public dataset and is not a "
-        "diagnostic tool.*"
     )
 
     questions = gr.State([])
