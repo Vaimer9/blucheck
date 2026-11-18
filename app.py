@@ -23,11 +23,6 @@ labels = [model.config.id2label[i] for i in range(model.config.num_labels)]
 if labels[0].startswith("LABEL_"):
     labels = FALLBACK_LABELS
 
-# --- short-answer penalty configuration ---
-NORMAL_LABEL = "Normal"
-SHORT_ANSWER_WORDS = 10   # average words per answer below this triggers the rule
-NORMAL_KEEP = 0.3         # keep 30% of Normal -> deduct 70%
-
 
 def score_answers(texts):
     """Run the classifier on a list of texts -> tensor of shape (n_texts, n_labels)."""
@@ -37,23 +32,6 @@ def score_answers(texts):
     with torch.no_grad():
         logits = model(**inputs).logits
     return torch.softmax(logits, dim=-1)
-
-
-def penalise_normal(probs, avg_words):
-    """If answers are very short, cut Normal by 70% and renormalise the rest.
-
-    probs: dict of {label: probability} (may be floats or tensors)
-    Returns (adjusted_probs, was_adjusted).
-    """
-    if avg_words >= SHORT_ANSWER_WORDS or NORMAL_LABEL not in probs:
-        return probs, False
-
-    adjusted = {k: float(v) for k, v in probs.items()}
-    adjusted[NORMAL_LABEL] *= NORMAL_KEEP
-    total = sum(adjusted.values())
-    if total > 0:                      # renormalise so scores still sum to 1
-        adjusted = {k: v / total for k, v in adjusted.items()}
-    return adjusted, True
 
 
 # ------------------------------------------------------- questionnaire JSON --
@@ -157,3 +135,118 @@ JSON_EXAMPLE = """```json
     {"question": "How have you been sleeping?"}
   ]
 }
+```
+A plain list of question strings also works."""
+
+with gr.Blocks(title="Questionnaire Designer") as demo:
+    gr.Markdown(
+        "# Blucheck (prototype)\n"
+        "Build a questionnaire, let someone fill it in, then see how the model "
+        "scores the answers.  \n"
+    )
+
+    questions = gr.State([])
+    prefill = gr.State([])  # prefilled answers, matched to questions by position
+
+    with gr.Tabs():
+        # ---- Tab 1: author ----
+        with gr.Tab("1. Build"):
+            gr.Markdown("### Start from a sample")
+            with gr.Row():
+                sample_btns = {name: gr.Button(name) for name in SAMPLES}
+            if not SAMPLES:
+                gr.Markdown(f"*No samples found ({SAMPLES_PATH.name} is missing or invalid).*")
+            status = gr.Markdown()
+
+            gr.Markdown("### Or load your own file")
+            upload = gr.File(label="Questionnaire (.json)", file_types=[".json"])
+            with gr.Accordion("JSON format", open=False):
+                gr.Markdown(JSON_EXAMPLE)
+
+            gr.Markdown("### Or build one by hand")
+            new_q = gr.Textbox(
+                label="New question",
+                placeholder="e.g. How have you been feeling this week?",
+            )
+            with gr.Row():
+                add_btn = gr.Button("Add question", variant="primary")
+                remove_btn = gr.Button("Remove last")
+                clear_btn = gr.Button("Clear all")
+            q_list = gr.Markdown(fmt_questions([]))
+
+            add_btn.click(add_question, [questions, new_q], [questions, q_list, new_q])
+            new_q.submit(add_question, [questions, new_q], [questions, q_list, new_q])
+            remove_btn.click(remove_last, questions, [questions, q_list])
+            clear_btn.click(clear_all, None, [questions, prefill, q_list, status])
+            upload.upload(load_uploaded, upload, [questions, prefill, q_list, status])
+            for name, btn in sample_btns.items():
+                btn.click(make_sample_loader(name), None, [questions, prefill, q_list, status])
+
+        # ---- Tab 2: respondent + results ----
+        with gr.Tab("2. Answer"):
+
+            # Re-runs whenever the questions or prefilled answers change, so the
+            # form always matches what was built or loaded.
+            @gr.render(inputs=[questions, prefill])
+            def render_form(qs, answers):
+                if not qs:
+                    gr.Markdown("*Build or load a questionnaire in the first tab.*")
+                    return
+
+                boxes = [
+                    gr.Textbox(
+                        label=f"{i + 1}. {q}",
+                        lines=3,
+                        value=answers[i] if i < len(answers) else "",
+                    )
+                    for i, q in enumerate(qs)
+                ]
+                submit = gr.Button("Submit answers", variant="primary")
+
+                def normal_penalty(avg_words):
+                    """Fraction to deduct from the 'Normal' score, based on average answer length."""
+                    if avg_words < 10:
+                        return 0.60
+                    if avg_words < 20:  # 10 to under 20 words
+                        return 0.50
+                    return 0.0
+
+                def on_submit(*texts):
+                    # skip unanswered questions so they don't pull the average around
+                    pairs = [
+                        (q, a.strip()) for q, a in zip(qs, texts) if a and a.strip()
+                    ]
+                    if not pairs:
+                        raise gr.Error("Answer at least one question first.")
+
+                    probs = score_answers([a for _, a in pairs])  # (n, n_labels)
+                    avg = probs.mean(dim=0)
+                    avg_words = sum(len(a.split()) for _, a in pairs) / len(pairs)
+                    penalty = normal_penalty(avg_words)
+                    if penalty and "Normal" in labels:
+                        avg = avg.clone()
+                        avg[labels.index("Normal")] *= (1 - penalty)
+                        avg = avg / avg.sum()  # renormalise so scores sum to 1
+
+                    avg_dict = {l: float(avg[i]) for i, l in enumerate(labels)}
+
+                    rows = []
+                    for (q, a), p in zip(pairs, probs):
+                        row = {"Question": q, "Answer": a, "Top label": labels[int(p.argmax())]}
+                        row.update({l: round(float(p[i]) * 100, 1) for i, l in enumerate(labels)})
+                        rows.append(row)
+
+                    return avg_dict, pd.DataFrame(rows)
+
+                submit.click(on_submit, inputs=boxes, outputs=[avg_label, per_question])
+
+            gr.Markdown("## Results")
+            avg_label = gr.Label(
+                label="Average score across all answers",
+                num_top_classes=len(labels),
+            )
+            per_question = gr.Dataframe(
+                label="Per-question scores (% per label)", interactive=False, wrap=True
+            )
+
+demo.launch()
